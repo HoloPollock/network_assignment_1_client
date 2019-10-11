@@ -31,12 +31,15 @@ func main() {
 	}
 	defer conn.Close()
 	for {
+		log.Println("go")
 		buf := make([]byte, 1024)
-		_, err := bufio.NewReader(conn).Read(buf)
+		cont, err := bufio.NewReader(conn).Read(buf)
+		log.Println(cont)
 		if err != nil {
 			log.Println("Error reader" + err.Error())
 			return
 		}
+		fmt.Println(string(buf))
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("> ")
 		text, err := reader.ReadString('\n')
@@ -68,15 +71,23 @@ func handleInput(conn net.Conn, text string) error {
 			return err
 		}
 		reader := bufio.NewReader(conn)
+		//conttemp , _ := reader.Read(make([]byte, 10))
+		//fmt.Println(conttemp)
 		file := strings.Replace(text, " ", "", -1)[len("download") : len(text)-1]
+		fmt.Println(file)
 		buf, err := reader.ReadBytes('\n')
+		fmt.Println(buf[:len(buf)-1])
 		if err != nil {
 			return err
 		}
 		data := binary.BigEndian.Uint64(buf[:len(buf)-1])
+		log.Printf("data %v\n", data)
 		filebuf := make([]byte, data)
 		log.Println(len(filebuf))
-		_, err = reader.Read(filebuf)
+		cont, err := reader.Read(filebuf)
+		log.Printf("log %v\n", cont)
+		fmt.Printf("filebuf %v\n", filebuf)
+		fmt.Println(file)
 		err = ioutil.WriteFile(file, filebuf, 0644)
 		if err != nil {
 			log.Println(err.Error())
