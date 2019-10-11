@@ -20,7 +20,7 @@ func main() {
 	flag.Parse()
 	dest := *host + ":" + strconv.Itoa(*port)
 	fmt.Printf("Connectiong to %s...\n", dest)
-	conn, err := net.Dial("tcp",dest)
+	conn, err := net.Dial("tcp", dest)
 	if err != nil {
 		if _, t := err.(*net.OpError); t {
 			fmt.Println("Error Connecting.")
@@ -51,7 +51,7 @@ func main() {
 	}
 
 }
-func handleInput(conn net.Conn, text string) error{
+func handleInput(conn net.Conn, text string) error {
 	text = strings.TrimSuffix(text, "\n")
 	fmt.Printf("%v\n", []byte("\n"))
 	fmt.Printf("%+v\n", []byte(text))
@@ -79,16 +79,16 @@ func handleInput(conn net.Conn, text string) error{
 		fmt.Println(buf[:len(buf)-1])
 		if err != nil {
 			return err
-	}
+		}
 		data := binary.BigEndian.Uint64(buf[:len(buf)-1])
-		log.Printf("data %v\n",data)
+		log.Printf("data %v\n", data)
 		filebuf := make([]byte, data)
 		log.Println(len(filebuf))
 		cont, err := reader.Read(filebuf)
 		log.Printf("log %v\n", cont)
 		fmt.Printf("filebuf %v\n", filebuf)
 		fmt.Println(file)
-		err = ioutil.WriteFile(file,filebuf, 0644)
+		err = ioutil.WriteFile(file, filebuf, 0644)
 		if err != nil {
 			log.Println(err.Error())
 			return err
