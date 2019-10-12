@@ -31,10 +31,10 @@ func main() {
 	}
 	defer conn.Close()
 	for {
-		log.Println("go")
+		//log.Println("go")
 		buf := make([]byte, 1024)
-		cont, err := bufio.NewReader(conn).Read(buf)
-		log.Println(cont)
+		_, err := bufio.NewReader(conn).Read(buf)
+		//log.Println(cont)
 		if err != nil {
 			log.Println("Error reader" + err.Error())
 			return
@@ -53,8 +53,8 @@ func main() {
 }
 func handleInput(conn net.Conn, text string) error {
 	text = strings.TrimSuffix(text, "\n")
-	fmt.Printf("%v\n", []byte("\n"))
-	fmt.Printf("%+v\n", []byte(text))
+	//fmt.Printf("%v\n", []byte("\n"))
+	//fmt.Printf("%+v\n", []byte(text))
 	if text == "exit" {
 		fmt.Println("Connection Closed")
 		_, err := fmt.Fprintf(conn, text)
