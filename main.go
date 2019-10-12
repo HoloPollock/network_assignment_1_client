@@ -30,13 +30,14 @@ func main() {
 		os.Exit(1)
 	}
 	defer conn.Close()
+	first := true;
 	for {
 		//log.Println("go")
 		buf := make([]byte, 1024)
 		_, err := bufio.NewReader(conn).Read(buf)
 		//log.Println(cont)
 		if err != nil {
-			log.Println("Error reader" + err.Error())
+			log.Println("Error Reading from Server Try Again Later " + err.Error())
 			return
 		}
 		fmt.Println(string(buf))
@@ -47,7 +48,16 @@ func main() {
 			log.Println("Error reader" + err.Error())
 			return
 		}
-		handleInput(conn, text)
+		if first {
+			_, err := fmt.Fprintf(conn, text)
+			if err != nil {
+				return
+			}
+			first = false
+		} else {
+			handleInput(conn, text)
+		}
+
 	}
 
 }
@@ -81,19 +91,19 @@ func handleInput(conn net.Conn, text string) error {
 			return err
 		}
 		data := binary.BigEndian.Uint64(buf[:len(buf)-1])
-		log.Printf("data %v\n", data)
+		//log.Printf("data %v\n", data)
 		filebuf := make([]byte, data)
-		log.Println(len(filebuf))
-		cont, err := reader.Read(filebuf)
-		log.Printf("log %v\n", cont)
-		fmt.Printf("filebuf %v\n", filebuf)
+		//log.Println(len(filebuf))
+		_, err = reader.Read(filebuf)
+		//log.Printf("log %v\n", cont)
+		//log.Printf("filebuf %v\n", filebuf)
 		fmt.Println(file)
 		err = ioutil.WriteFile(file, filebuf, 0644)
 		if err != nil {
 			log.Println(err.Error())
 			return err
 		}
-		fmt.Println("Kill me")
+		//log.Println("Kill me")
 		return nil
 	} else {
 		_, err := fmt.Fprintf(conn, text)
