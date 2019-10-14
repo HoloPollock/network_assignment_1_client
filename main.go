@@ -31,7 +31,7 @@ func main() {
 		os.Exit(1)
 	}
 	defer conn.Close()
-	first := true;
+	first := true
 	buf := make([]byte, 1024)
 	_, err = bufio.NewReader(conn).Read(buf)
 	//log.Println(cont)
@@ -67,7 +67,6 @@ func main() {
 			return
 		}
 		fmt.Print(string(buf))
-
 
 	}
 
