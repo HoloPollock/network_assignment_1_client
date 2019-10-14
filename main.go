@@ -71,8 +71,6 @@ func handleInput(conn net.Conn, text string) error {
 		if err != nil {
 			return err
 		}
-		conn.Close()
-		os.Exit(2)
 		return nil
 	} else if strings.HasPrefix(text, "download ") {
 		fmt.Println("downloading...")
@@ -91,7 +89,9 @@ func handleInput(conn net.Conn, text string) error {
 			return err
 		}
 		data := binary.BigEndian.Uint64(buf[:len(buf)-1])
-		//log.Printf("data %v\n", data)
+		log.Printf("data %v\n", data)
+		//add a send a got to make sure I recived the whole file
+		fmt.Fprintf(conn, "yup")
 		filebuf := make([]byte, data)
 		//log.Println(len(filebuf))
 		_, err = reader.Read(filebuf)
