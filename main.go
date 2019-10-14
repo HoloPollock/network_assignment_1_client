@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/binary"
 	"flag"
 	"fmt"
@@ -31,16 +32,16 @@ func main() {
 	}
 	defer conn.Close()
 	first := true;
+	buf := make([]byte, 1024)
+	_, err = bufio.NewReader(conn).Read(buf)
+	//log.Println(cont)
+	if err != nil {
+		log.Println("Error Reading from Server Try Again Later " + err.Error())
+		return
+	}
+	fmt.Println(string(buf))
 	for {
 		//log.Println("go")
-		buf := make([]byte, 1024)
-		_, err := bufio.NewReader(conn).Read(buf)
-		//log.Println(cont)
-		if err != nil {
-			log.Println("Error Reading from Server Try Again Later " + err.Error())
-			return
-		}
-		fmt.Println(string(buf))
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("> ")
 		text, err := reader.ReadString('\n')
@@ -57,6 +58,16 @@ func main() {
 		} else {
 			handleInput(conn, text)
 		}
+		buf := make([]byte, 1024)
+		//log.Println("out of input")
+		_, err = bufio.NewReader(conn).Read(buf)
+		//log.Println(cont)
+		if err != nil {
+			log.Println("Error Reading from Server Try Again Later " + err.Error())
+			return
+		}
+		fmt.Print(string(buf))
+
 
 	}
 
@@ -82,29 +93,37 @@ func handleInput(conn net.Conn, text string) error {
 		//conttemp , _ := reader.Read(make([]byte, 10))
 		//fmt.Println(conttemp)
 		file := strings.Replace(text, " ", "", -1)[len("download") : len(text)-1]
-		fmt.Println(file)
+		//log.Println(file)
 		buf, err := reader.ReadBytes('\n')
-		fmt.Println(buf[:len(buf)-1])
+		//log.Println(buf[:len(buf)-1])
 		if err != nil {
 			return err
 		}
-		data := binary.BigEndian.Uint64(buf[:len(buf)-1])
-		log.Printf("data %v\n", data)
+		data := read_int32(buf[:len(buf)-1])
+		//log.Printf("data %v\n", data)
 		//add a send a got to make sure I recived the whole file
-		fmt.Fprintf(conn, "yup")
-		filebuf := make([]byte, data)
-		//log.Println(len(filebuf))
-		_, err = reader.Read(filebuf)
-		//log.Printf("log %v\n", cont)
-		//log.Printf("filebuf %v\n", filebuf)
-		fmt.Println(file)
-		err = ioutil.WriteFile(file, filebuf, 0644)
-		if err != nil {
-			log.Println(err.Error())
-			return err
+		if data != -1 {
+			fmt.Fprintf(conn, "yup\n")
+			filebuf := make([]byte, data)
+			//log.Println(len(filebuf))
+			_, err = reader.Read(filebuf)
+			//log.Printf("log %v\n", cont)
+			//log.Printf("filebuf %v\n", filebuf)
+			fmt.Println(file)
+			err = ioutil.WriteFile(file, filebuf, 0644)
+			if err != nil {
+				log.Println(err.Error())
+				return err
+			}
+			//done, _ := reader.ReadString('\n')
+			//fmt.Print(done)
+			//log.Println("Kill me")
+			return nil
+		} else {
+			//log.Println("No File found")
+			fmt.Fprintf(conn, "yup\n")
+			return nil
 		}
-		//log.Println("Kill me")
-		return nil
 	} else {
 		_, err := fmt.Fprintf(conn, text)
 		if err != nil {
@@ -112,4 +131,10 @@ func handleInput(conn net.Conn, text string) error {
 		}
 	}
 	return nil
+}
+
+func read_int32(data []byte) (ret int64) {
+	buf := bytes.NewBuffer(data)
+	binary.Read(buf, binary.BigEndian, &ret)
+	return
 }
