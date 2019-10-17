@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net"
@@ -63,7 +64,11 @@ func main() {
 		_, err = bufio.NewReader(conn).Read(buf)
 		//log.Println(cont)
 		if err != nil {
-			log.Println("Error Reading from Server Try Again Later " + err.Error())
+			if err == io.EOF {
+				fmt.Println("Goodbye")
+				return
+			}
+			log.Println("Error Reading from Server Try Again Later" + err.Error())
 			return
 		}
 		fmt.Print(string(buf))
@@ -114,8 +119,6 @@ func handleInput(conn net.Conn, text string) error {
 				log.Println(err.Error())
 				return err
 			}
-			//done, _ := reader.ReadString('\n')
-			//fmt.Print(done)
 			//log.Println("Kill me")
 			return nil
 		} else {
