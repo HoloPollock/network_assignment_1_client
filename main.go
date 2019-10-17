@@ -81,6 +81,7 @@ func main() {
 	}
 
 }
+
 //function for processing input
 func handleInput(conn net.Conn, text string) error {
 	text = strings.TrimSuffix(text, "\n")
@@ -91,7 +92,7 @@ func handleInput(conn net.Conn, text string) error {
 			return err
 		}
 		return nil
-	//process how to download files
+		//process how to download files
 	} else if strings.HasPrefix(text, "download ") {
 		fmt.Println("downloading...")
 		_, err := fmt.Fprintf(conn, text)
@@ -107,7 +108,7 @@ func handleInput(conn net.Conn, text string) error {
 			return err
 		}
 		// read size of file (in big endian)
-		data := read_int32(buf[:len(buf)-1])
+		data := readInt32(buf[:len(buf)-1])
 		//if file exist the size will not be -1
 		if data != -1 {
 			//send confirmation that you got file size
@@ -137,7 +138,7 @@ func handleInput(conn net.Conn, text string) error {
 	return nil
 }
 
-func read_int32(data []byte) (ret int64) {
+func readInt32(data []byte) (ret int64) {
 	buf := bytes.NewBuffer(data)
 	binary.Read(buf, binary.BigEndian, &ret)
 	return
