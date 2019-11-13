@@ -1,6 +1,8 @@
 # network_assignment_1_client
 This is the client for the assignment
 
+Made for CISC 435
+
 The Server is here https://github.com/HoloPollock/Networks-Assignment-1
 
 ## Run
